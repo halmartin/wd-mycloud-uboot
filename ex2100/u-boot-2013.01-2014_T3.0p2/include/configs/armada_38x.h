@@ -78,6 +78,9 @@
 
 #define MV_DDR_TRAINING_CMD_NEW_TIP
 
+#define CONFIG_CMD_SAVEENV
+
+
 /*
  * Debug
  */
@@ -372,7 +375,7 @@ extern unsigned int mvTclkGet(void);
 		#define MONITOR_HEADER_LEN              0x200
 		#define CONFIG_SYS_MONITOR_BASE         0
 		#define CONFIG_SYS_MONITOR_LEN          0x80000           /* Reserve 512 kB for Monitor */
-		#define CONFIG_ENV_RANGE                CONFIG_ENV_SIZE * 8
+		#define CONFIG_ENV_RANGE                CONFIG_ENV_SIZE * 2
 
 		#define MV_NBOOT_BASE                   0
 		#define MV_NBOOT_LEN                    (4 << 10)       /* Reserved 4KB for boot strap */
@@ -606,7 +609,7 @@ extern unsigned int mvTclkGet(void);
 #define PCI_HOST_AUTO    2              /* detected via arbiter enable  */
 
 #define CONFIG_UBOOT_SIZE                       0x100000
-#define CONFIG_SPARE_AREA			0x400000
+#define CONFIG_SPARE_AREA			0x000000
 
 /* NOR-FLASH stuff	*/
 /************************/

@@ -686,7 +686,11 @@ void misc_init_r_env(void)
 	/* Check push USB button */
 	value = MV_REG_READ(0x18150);
 	if ( ( value & (1<<(44-32)) ) != 0 )
-		setenv("bootcmd","nand read.e 0xa00000 0x500000 0x500000;nand read.e 0xf00000 0xa00000 0x500000;bootm 0xa00000 0xf00000");
+                setenv("bootcmd","run bootcmd_custom; setenv bootargs root=/dev/ram console=ttyS0,115200; nand read.e 0xa00000 0x500000 0x500000;nand read.e 0xf00000 0xa00000 0x500000;bootm 0xa00000 0xf00000");
+                env = getenv("bootcmd");
+                if (env) {
+                        printf ("bootcmd: %s\n", env);
+                }
 	else
 	{
 		/* push usb botton , boot from USB */
@@ -1223,16 +1227,6 @@ int misc_init_r(void)
 	Wake_On_Lan_Setup(0);
 	Wake_On_Lan_Setup(2);
 	
-//	/* power off nas */
-	serial2_putc(0xfa);
-	serial2_putc(0x3);
-	serial2_putc(0x11);
-	serial2_putc(0x0);
-	serial2_putc(0x0);
-	serial2_putc(0x0);
-	serial2_putc(0xfb); 
-	udelay(1000000);	
-	
 	/* set phy WOL to nomal mode */
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(0), 22, 0x3);
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(0),18,0x4905);
@@ -1254,31 +1248,37 @@ int misc_init_r(void)
 	reg = reg & 0xfbff;
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(2),0,reg);
   
-/* Enable SATA through MicroP */
-	printf("MicroP Enable HD\n");
-	printf("Enable HD1\n");
-	serial2_putc(0xfa);
-	serial2_putc(0x6);
-	serial2_putc(0x1);
-	serial2_putc(0x0);
-	serial2_putc(0x1);
-	serial2_putc(0x1);
-	serial2_putc(0xfb); 
-  for ( i=0;i<5;i++)
-		udelay(1000000);
-		
-  printf("Enable HD2\n");
+  printf("Set fan duty cycle to 50%\n");
   serial2_putc(0xfa);
-	serial2_putc(0x6);
-	serial2_putc(0x1);
-	serial2_putc(0x1);
-	serial2_putc(0x1);
-	serial2_putc(0x1);
-	serial2_putc(0xfb); 
-  for ( i=0;i<5;i++)
-		udelay(1000000);
+  serial2_putc(0x02);
+  serial2_putc(0x00);
+  serial2_putc(0x50);
+  serial2_putc(0x00);
+  serial2_putc(0x00);
+  serial2_putc(0xfb); 
 
-   /* set lan 802.3 EEE */	
+  printf("Spin up HD1\n");
+  serial2_putc(0xfa);
+  serial2_putc(0x06);
+  serial2_putc(0x01);
+  serial2_putc(0x00);
+  serial2_putc(0x01);
+  serial2_putc(0x01);
+  serial2_putc(0xfb); 
+  udelay(5000000);
+
+  printf("Spin up HD2\n");
+  serial2_putc(0xfa);
+  serial2_putc(0x06);
+  serial2_putc(0x01);
+  serial2_putc(0x01);
+  serial2_putc(0x01);
+  serial2_putc(0x01);
+  serial2_putc(0xfb); 
+  udelay(1000000);
+
+
+  /* set lan 802.3 EEE */	
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(0), 0x16, 0x0);
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(0), 0x0D, 0x7);
 	mvEthPhyRegWrite(mvBoardPhyAddrGet(0), 0x0E, 0x3C);
